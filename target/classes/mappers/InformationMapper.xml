@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zidongzh.mapper.InformationMapper">
+
+    <select id="getAll" resultType="com.zidongzh.pojo.Information">
+        select * from t_information
+    </select>
+
+    <select id="getInfoByType" resultType="com.zidongzh.pojo.Information">
+        select * from t_information where type = #{type}
+    </select>
+
+    <insert id="addGeneInfo" parameterType="com.zidongzh.pojo.Information">
+        insert into t_gene(chromosome_id, type, start_pos, end_pos, mutation_num, mutation_rate)
+        values(#{information.chromosomeId},
+               #{information.type},
+               #{information.startPos},
+               #{information.endPos},
+               #{information.mutationNum},
+               #{information.mutationRate})
+    </insert>
+
+    <insert id="addNonGeneInfo" parameterType="com.zidongzh.pojo.Information">
+        insert into t_nongene(chromosome_id, type, start_pos, end_pos, mutation_num, mutation_rate)
+        values(#{information.chromosomeId},
+               #{information.type},
+               #{information.startPos},
+               #{information.endPos},
+               #{information.mutationNum},
+               #{information.mutationRate})
+    </insert>
+
+    <select id="getGenes"   resultType="com.zidongzh.pojo.Information">
+        select * from t_gene
+    </select>
+
+    <select id="getNonGenes"   resultType="com.zidongzh.pojo.Information">
+        select * from t_nongene
+    </select>
+
+</mapper>
