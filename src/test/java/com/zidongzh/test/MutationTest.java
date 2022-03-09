@@ -5,16 +5,19 @@ import com.zidongzh.mapper.InformationMapper;
 import com.zidongzh.mapper.MutationMapper;
 import com.zidongzh.pojo.Information;
 import com.zidongzh.pojo.Mutation;
+import com.zidongzh.pojo.MutationList;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Test;
+import sun.misc.GC;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -112,14 +115,6 @@ public class MutationTest {
         List<Information> genes = informationMapper.getGenes();
         List<Information> nonGenes = informationMapper.getNonGenes();
 
-//        for (int i = 0; i < genes.size(); i++) {
-//            System.out.print(genes.get(i).getMutationRate()+ ",");
-//        }
-//        for (int i = 0; i < nonGenes.size(); i++) {
-//            System.out.print(nonGenes.get(i).getMutationRate() + ",");
-//        }
-
-
         double geneMutRateMean = 0.0;
         double geneVariance = 0.0;
 
@@ -144,6 +139,93 @@ public class MutationTest {
         double u = 0.0;
         u = (geneMutRateMean - nonGeneMutRateMean) / (sqrt((geneVariance / genes.size()) + (nonGeneVariance / nonGenes.size())));
         System.out.println("u = " + u);
+    }
+
+    @Test
+    public void mutationTest() throws IOException {
+        InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
+        SqlSessionFactoryBuilder sqlSessionFactoryBuilder = new SqlSessionFactoryBuilder();
+        SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.build(inputStream);
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+
+        InformationMapper informationMapper = sqlSession.getMapper(InformationMapper.class);
+        MutationMapper mutationMapper = sqlSession.getMapper(MutationMapper.class);
+
+        List<Information> genes = informationMapper.getGenes();
+        List<Information> nonGenes = informationMapper.getNonGenes();
+
+        List<Mutation> mutations = mutationMapper.getAll();
+
+        List<Mutation> ATMutations = new ArrayList<>();
+        List<Mutation> AGMutations = new ArrayList<>();
+        List<Mutation> ACMutations = new ArrayList<>();
+        List<Mutation> TAMutations = new ArrayList<>();
+        List<Mutation> TGMutations = new ArrayList<>();
+        List<Mutation> TCMutations = new ArrayList<>();
+        List<Mutation> GAMutations = new ArrayList<>();
+        List<Mutation> GTMutations = new ArrayList<>();
+        List<Mutation> GCMutations = new ArrayList<>();
+        List<Mutation> CAMutations = new ArrayList<>();
+        List<Mutation> CTMutations = new ArrayList<>();
+        List<Mutation> CGMutations = new ArrayList<>();
+
+//        mutations.size()
+        for (int i = 0; i < mutations.size(); i++) {
+            if (mutations.get(i).getType().startsWith("AT")) {
+                ATMutations.add(mutations.get(i));
+            } else if (mutations.get(i).getType().startsWith("AG")) {
+                AGMutations.add(mutations.get(i));
+            } else if (mutations.get(i).getType().startsWith("AC")) {
+                ACMutations.add(mutations.get(i));
+            } else if (mutations.get(i).getType().startsWith("TA")) {
+                TAMutations.add(mutations.get(i));
+            } else if (mutations.get(i).getType().startsWith("TG")) {
+                TGMutations.add(mutations.get(i));
+            } else if (mutations.get(i).getType().startsWith("TC")) {
+                TCMutations.add(mutations.get(i));
+            } else if (mutations.get(i).getType().startsWith("GA")) {
+                GAMutations.add(mutations.get(i));
+            } else if (mutations.get(i).getType().startsWith("GT")) {
+                GTMutations.add(mutations.get(i));
+            } else if (mutations.get(i).getType().startsWith("GC")) {
+                GCMutations.add(mutations.get(i));
+            } else if (mutations.get(i).getType().startsWith("CA")) {
+                CAMutations.add(mutations.get(i));
+            } else if (mutations.get(i).getType().startsWith("CT")) {
+                CTMutations.add(mutations.get(i));
+            } else if (mutations.get(i).getType().startsWith("CG")) {
+                CGMutations.add(mutations.get(i));
+            }
+        }
+        System.out.println("all add up is " + (ATMutations.size() + AGMutations.size() + ACMutations.size() + TAMutations.size() + TGMutations.size() + TCMutations.size() + GAMutations.size() +
+                GTMutations.size() + GCMutations.size() + CAMutations.size() + CTMutations.size() + CGMutations.size()));
+        System.out.println("mutation size is " + mutations.size());
+
+//        System.out.println(ATMutations);
+//        System.out.println("-----------------");
+//        System.out.println(AGMutations);
+//        System.out.println("-----------------");
+//        System.out.println(ACMutations);
+//        System.out.println("-----------------");
+//        System.out.println(TAMutations);
+//        System.out.println("-----------------");
+//        System.out.println(TGMutations);
+//        System.out.println("-----------------");
+//        System.out.println(TCMutations);
+//        System.out.println("-----------------");
+//        System.out.println(CAMutations);
+//        System.out.println("-----------------");
+//        System.out.println(CTMutations);
+//        System.out.println("-----------------");
+//        System.out.println(CGMutations);
+//        System.out.println("-----------------");
+//        System.out.println(GAMutations);
+//        System.out.println("-----------------");
+//        System.out.println(GTMutations);
+//        System.out.println("-----------------");
+//        System.out.println(GCMutations);
+
+
     }
 
 
