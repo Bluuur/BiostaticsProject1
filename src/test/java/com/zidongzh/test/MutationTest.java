@@ -1,5 +1,6 @@
 package com.zidongzh.test;
 
+import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
 import com.zidongzh.mapper.InformationMapper;
 import com.zidongzh.mapper.MutationMapper;
 import com.zidongzh.pojo.Information;
@@ -13,11 +14,10 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
+import static java.lang.Math.*;
 
 /**
  * @author Zidong Zh
@@ -70,7 +70,12 @@ public class MutationTest {
 
         //构造非基因区间
         nonGenes = getNonGenes(genes, chromosomes);
-//        System.out.println(nonGenes);
+        //生成数据漏掉三条
+        nonGenes.add(new Information("2-micron", "nonGene", 1524, 1886));
+        nonGenes.add(new Information("2-micron", "nonGene", 3009, 3270));
+        nonGenes.add(new Information("2-micron", "nonGene", 3817, 5307));
+
+        System.out.println("nonGene size = " + nonGenes.size());
 
         //计算变异数与变异率
         for (int i = 0; i < allMutation.size(); i++) {
@@ -98,6 +103,13 @@ public class MutationTest {
                 classify(gene, mutation);
             }
         }
+        for (int i = 0; i < nonGenes.size(); i++) {
+            Information nonGene = nonGenes.get(i);
+            for (int j = 0; j < allMutation.size(); j++) {
+                Mutation mutation = allMutation.get(j);
+                classify(nonGene, mutation);
+            }
+        }
 
         //将基因与非基因添加到数据库
         for (int i = 0; i < genes.size(); i++) {
@@ -106,7 +118,6 @@ public class MutationTest {
         for (int i = 0; i < nonGenes.size(); i++) {
             informationMapper.addNonGeneInfo(nonGenes.get(i));
         }
-        //漏掉三个
 
         //提交修改至数据库
         sqlSession.commit();
@@ -163,83 +174,50 @@ public class MutationTest {
         List<Information> genes = informationMapper.getGenes();
         List<Information> nonGenes = informationMapper.getNonGenes();
 
-        List<Mutation> mutations = mutationMapper.getAll();
-
-        List<Mutation> ATMutations = new ArrayList<>();
-        List<Mutation> AGMutations = new ArrayList<>();
-        List<Mutation> ACMutations = new ArrayList<>();
-        List<Mutation> TAMutations = new ArrayList<>();
-        List<Mutation> TGMutations = new ArrayList<>();
-        List<Mutation> TCMutations = new ArrayList<>();
-        List<Mutation> GAMutations = new ArrayList<>();
-        List<Mutation> GTMutations = new ArrayList<>();
-        List<Mutation> GCMutations = new ArrayList<>();
-        List<Mutation> CAMutations = new ArrayList<>();
-        List<Mutation> CTMutations = new ArrayList<>();
-        List<Mutation> CGMutations = new ArrayList<>();
-
-//        mutations.size()
-        for (int i = 0; i < mutations.size(); i++) {
-            if (mutations.get(i).getType().startsWith("AT")) {
-                ATMutations.add(mutations.get(i));
-            } else if (mutations.get(i).getType().startsWith("AG")) {
-                AGMutations.add(mutations.get(i));
-            } else if (mutations.get(i).getType().startsWith("AC")) {
-                ACMutations.add(mutations.get(i));
-            } else if (mutations.get(i).getType().startsWith("TA")) {
-                TAMutations.add(mutations.get(i));
-            } else if (mutations.get(i).getType().startsWith("TG")) {
-                TGMutations.add(mutations.get(i));
-            } else if (mutations.get(i).getType().startsWith("TC")) {
-                TCMutations.add(mutations.get(i));
-            } else if (mutations.get(i).getType().startsWith("GA")) {
-                GAMutations.add(mutations.get(i));
-            } else if (mutations.get(i).getType().startsWith("GT")) {
-                GTMutations.add(mutations.get(i));
-            } else if (mutations.get(i).getType().startsWith("GC")) {
-                GCMutations.add(mutations.get(i));
-            } else if (mutations.get(i).getType().startsWith("CA")) {
-                CAMutations.add(mutations.get(i));
-            } else if (mutations.get(i).getType().startsWith("CT")) {
-                CTMutations.add(mutations.get(i));
-            } else if (mutations.get(i).getType().startsWith("CG")) {
-                CGMutations.add(mutations.get(i));
-            }
-        }
-        System.out.println("all add up is " + (ATMutations.size() + AGMutations.size() + ACMutations.size() + TAMutations.size() + TGMutations.size() + TCMutations.size() + GAMutations.size() +
-                GTMutations.size() + GCMutations.size() + CAMutations.size() + CTMutations.size() + CGMutations.size()));
-        System.out.println("mutation size is " + mutations.size());
-
-//        System.out.println(ATMutations);
-//        System.out.println("-----------------");
-//        System.out.println(AGMutations);
-//        System.out.println("-----------------");
-//        System.out.println(ACMutations);
-//        System.out.println("-----------------");
-//        System.out.println(TAMutations);
-//        System.out.println("-----------------");
-//        System.out.println(TGMutations);
-//        System.out.println("-----------------");
-//        System.out.println(TCMutations);
-//        System.out.println("-----------------");
-//        System.out.println(CAMutations);
-//        System.out.println("-----------------");
-//        System.out.println(CTMutations);
-//        System.out.println("-----------------");
-//        System.out.println(CGMutations);
-//        System.out.println("-----------------");
-//        System.out.println(GAMutations);
-//        System.out.println("-----------------");
-//        System.out.println(GTMutations);
-//        System.out.println("-----------------");
-//        System.out.println(GCMutations);
-
-
+        System.out.println("------------------------------------");
+        System.out.println("AC: t is " + tTest(genes, nonGenes, "AC"));
+        System.out.println("------------------------------------");
+        System.out.println("AT: t is " + tTest(genes, nonGenes, "AT"));
+        System.out.println("------------------------------------");
+        System.out.println("GA: t is " + tTest(genes, nonGenes, "GA"));
+        System.out.println("------------------------------------");
+        System.out.println("GC: t is " + tTest(genes, nonGenes, "GC"));
+        System.out.println("------------------------------------");
+        System.out.println("GT: t is " + tTest(genes, nonGenes, "GT"));
+        System.out.println("------------------------------------");
+        System.out.println("CA: t is " + tTest(genes, nonGenes, "CA"));
+        System.out.println("------------------------------------");
+        System.out.println("CG: t is " + tTest(genes, nonGenes, "CG"));
+        System.out.println("------------------------------------");
+        System.out.println("CT: t is " + tTest(genes, nonGenes, "CT"));
+        System.out.println("------------------------------------");
+        System.out.println("TA: t is " + tTest(genes, nonGenes, "TA"));
+        System.out.println();
+        System.out.println();
+        System.out.println("------------------------------------");
+        System.out.println("AC: u is " + uTest(genes, nonGenes, "AC"));
+        System.out.println("-----------------------------------");
+        System.out.println("AT: u is " + uTest(genes, nonGenes, "AT"));
+        System.out.println("-----------------------------------");
+        System.out.println("GA: u is " + uTest(genes, nonGenes, "GA"));
+        System.out.println("-----------------------------------");
+        System.out.println("GC: u is " + uTest(genes, nonGenes, "GC"));
+        System.out.println("-----------------------------------");
+        System.out.println("GT: u is " + uTest(genes, nonGenes, "GT"));
+        System.out.println("-----------------------------------");
+        System.out.println("CA: u is " + uTest(genes, nonGenes, "CA"));
+        System.out.println("-----------------------------------");
+        System.out.println("CG: u is " + uTest(genes, nonGenes, "CG"));
+        System.out.println("----------------------------------");
+        System.out.println("CT: u is " + uTest(genes, nonGenes, "CT"));
+        System.out.println("-----------------------------------");
+        System.out.println("TA: u is " + uTest(genes, nonGenes, "TA"));
     }
 
 
     void classify(Information gene, Mutation mutation) {
-        if (mutation.getChromosomePos() >= gene.getStartPos() &&
+        if (mutation.getChromosomeId().equals(gene.getChromosomeId()) &&
+                mutation.getChromosomePos() >= gene.getStartPos() &&
                 mutation.getChromosomePos() <= gene.getEndPos()) {
             if (mutation.getType().startsWith("AT")) {
                 gene.setATNum(gene.getATNum() + 1);
@@ -295,12 +273,10 @@ public class MutationTest {
 
 
     /**
-     * @param genes       基因信息
-     * @param chromosomes 染色体信息
+     * @param genes 基因信息
      * @return 非基因区间
      */
-    List<Information> getNonGenes(List<Information> genes,
-                                  List<Information> chromosomes) {
+    List<Information> getNonGenes(List<Information> genes, List<Information> chromosomes) {
         int pos = 0;
 
         List<Information> nonGenes = new ArrayList<>();
@@ -308,9 +284,8 @@ public class MutationTest {
         nonGenes.add(nonGeneHead);
         for (int i = 0; i < chromosomes.size(); i++) {
             for (int j = 0; j < genes.size(); j++) {
-                if (
-                        genes.get(j).getChromosomeId().equals(chromosomes.get(i).getChromosomeId()) &&
-                                genes.get(j + 1).getChromosomeId().equals(chromosomes.get(i).getChromosomeId())) {
+                if (genes.get(j).getChromosomeId().equals(chromosomes.get(i).getChromosomeId()) &&
+                        genes.get(j + 1).getChromosomeId().equals(chromosomes.get(i).getChromosomeId())) {
                     Information nonGene = new Information(genes.get(j).getChromosomeId(), "nonGene", genes.get(j).getEndPos() + 1, genes.get(j + 1).getStartPos() - 1);
                     nonGenes.add(nonGene);
                     pos = j + 2;
@@ -321,7 +296,6 @@ public class MutationTest {
                 nonGenes.add(nonGeneHead1);
             }
         }
-
         return nonGenes;
     }
 
@@ -354,4 +328,144 @@ public class MutationTest {
         return sum / (information.size() - 1);
     }
 
+    /**
+     * t检验
+     *
+     * @param genes    基因序列数据
+     * @param nonGenes 非基因序列数据
+     * @param flag     需要计算的突变类型 “AG” 表示由 A 突变为 G
+     * @return
+     */
+    double tTest(List<Information> genes, List<Information> nonGenes, String flag) {
+
+        List<Double> geneRate = rate(genes, flag);
+        List<Double> nonGeneRate = rate(nonGenes, flag);
+        double geneMutRateMean = 0.0;
+        double nonGeneMutRateMean = 0.0;
+        double geneSum = 0.0;
+        double nonGeneSum = 0.0;
+        double geneVariance = 0.0;
+        double nonGeneVariance = 0.0;
+        double t = 0.0;
+
+        geneMutRateMean = mean(geneRate);
+        nonGeneMutRateMean = mean(nonGeneRate);
+        geneSum = (double) genes.size();
+        nonGeneSum = (double) nonGenes.size();
+        geneVariance = variance(geneRate, geneMutRateMean);
+        nonGeneVariance = variance(nonGeneRate, nonGeneMutRateMean);
+
+        t = (geneMutRateMean - nonGeneMutRateMean) / (sqrt((((geneSum - 1) * geneVariance) + ((nonGeneSum - 1) * nonGeneVariance)) / (geneSum + nonGeneSum - 2)) * sqrt((1 / geneSum) + (1 / nonGeneSum)));
+        System.out.println("gene mean is " + geneMutRateMean);
+        System.out.println("non gene mean is " + nonGeneMutRateMean);
+        return t;
+    }
+
+    /**
+     * u检验
+     *
+     * @param genes    基因序列数据
+     * @param nonGenes 非基因序列数据
+     * @param flag     需要计算的突变类型 “AG” 表示由 A 突变为 G
+     * @return
+     */
+    double uTest(List<Information> genes, List<Information> nonGenes, String flag) {
+        List<Double> geneRate = rate(genes, flag);
+        List<Double> nonGeneRate = rate(nonGenes, flag);
+        double geneMutRateMean = 0.0;
+        double nonGeneMutRateMean = 0.0;
+        double geneSum = 0.0;
+        double nonGeneSum = 0.0;
+        double geneVariance = 0.0;
+        double nonGeneVariance = 0.0;
+        double u = 0.0;
+
+        geneMutRateMean = mean(geneRate);
+        nonGeneMutRateMean = mean(nonGeneRate);
+        geneSum = (double) genes.size();
+        nonGeneSum = (double) nonGenes.size();
+        geneVariance = variance(geneRate, geneMutRateMean);
+        nonGeneVariance = variance(nonGeneRate, nonGeneMutRateMean);
+
+        u = (geneMutRateMean - nonGeneMutRateMean) / (sqrt((geneVariance / geneSum) + (nonGeneVariance / nonGeneSum)));
+        return u;
+    }
+
+    /**
+     * 由原始数据计算突变率
+     *
+     * @param information 输入的序列
+     * @param flag        需要计算的突变类型 “AG” 表示由 A 突变为 G
+     * @return 返回突变率集合
+     */
+    List<Double> rate(List<Information> information, String flag) {
+        int num = 0;
+        int length = 0;
+        List<Double> rates = new ArrayList<>();
+        for (int i = 0; i < information.size(); i++) {
+            length = information.get(i).getEndPos() - information.get(i).getStartPos() + 1;
+            if ("AT".equals(flag)) {
+                num = information.get(i).getATNum();
+            } else if ("AG".equals(flag)) {
+                num = information.get(i).getAGNum();
+            } else if ("AC".equals(flag)) {
+                num = information.get(i).getACNum();
+            } else if ("TA".equals(flag)) {
+                num = information.get(i).getTANum();
+            } else if ("TG".equals(flag)) {
+                num = information.get(i).getTGNum();
+            } else if ("TC".equals(flag)) {
+                num = information.get(i).getTCNum();
+            } else if ("GA".equals(flag)) {
+                num = information.get(i).getGANum();
+            } else if ("GT".equals(flag)) {
+                num = information.get(i).getGTNum();
+            } else if ("GC".equals(flag)) {
+                num = information.get(i).getGCNum();
+            } else if ("CA".equals(flag)) {
+                num = information.get(i).getACNum();
+            } else if ("CT".equals(flag)) {
+                num = information.get(i).getCTNum();
+            } else if ("CG".equals(flag)) {
+                num = information.get(i).getCGNum();
+            }
+            rates.add((double) num / (double) length);
+        }
+        return rates;
+    }
+
+    /**
+     * 计算突变率均值
+     *
+     * @param rates 突变率集合
+     * @return 返回均值
+     */
+    double mean(List<Double> rates) {
+        double sum = 0.0;
+        for (int i = 0; i < rates.size(); i++) {
+            //Double是引用数据类型 此处 if 语句用于防止自动装箱时产生误差
+            if (rates.get(i) > 0.0) {
+                sum += rates.get(i);
+            }
+        }
+        return sum / rates.size();
+    }
+
+    /**
+     * 计算方差
+     *
+     * @param rates 突变率集合
+     * @param mean  突变率均值
+     * @return 返回方差
+     */
+    double variance(List<Double> rates, double mean) {
+        double sum = 0.0;
+        for (int i = 0; i < rates.size(); i++) {
+            //Double是引用数据类型 此处 if 语句用于防止自动装箱时产生误差
+            if (rates.get(i) > 0.0) {
+                sum += pow((rates.get(i) - mean), (double) 2);
+            }
+        }
+        return sum / (rates.size() - 1);
+    }
 }

@@ -51,11 +51,11 @@
                 #{information.CTNum},
                 #{information.TANum},
                 #{information.TGNum},
-                #{information.TCNum},)
+                #{information.TCNum})
     </insert>
 
     <insert id="addNonGeneInfo" parameterType="com.zidongzh.pojo.Information">
-        insert into t_gene(chromosomeId,
+        insert into t_nonGene(chromosomeId,
                            type,
                            startPos,
                            endPos,
@@ -90,7 +90,7 @@
                 #{information.CTNum},
                 #{information.TANum},
                 #{information.TGNum},
-                #{information.TCNum},)
+                #{information.TCNum})
     </insert>
 
     <select id="getGenes" resultType="com.zidongzh.pojo.Information">
