@@ -1,23 +1,20 @@
 package com.zidongzh.test;
 
-import com.mysql.cj.protocol.a.BinaryRowFactory;
 import com.zidongzh.mapper.InformationMapper;
 import com.zidongzh.mapper.MutationMapper;
 import com.zidongzh.pojo.Information;
 import com.zidongzh.pojo.Mutation;
-import com.zidongzh.pojo.MutationList;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Test;
-import sun.misc.GC;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
+
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -52,6 +49,7 @@ public class MutationTest {
 
         //获取基因区间
         genes = informationMapper.getInfoByType("gene");
+        System.out.println("genes size is " + genes.size());
 
         //获取染色体
         chromosomes = informationMapper.getInfoByType("chromosome");
@@ -72,6 +70,7 @@ public class MutationTest {
 
         //构造非基因区间
         nonGenes = getNonGenes(genes, chromosomes);
+//        System.out.println(nonGenes);
 
         //计算变异数与变异率
         for (int i = 0; i < allMutation.size(); i++) {
@@ -91,6 +90,15 @@ public class MutationTest {
             }
         }
 
+        //统计突变方向
+        for (int i = 0; i < genes.size(); i++) {
+            Information gene = genes.get(i);
+            for (int j = 0; j < allMutation.size(); j++) {
+                Mutation mutation = allMutation.get(j);
+                classify(gene, mutation);
+            }
+        }
+
         //将基因与非基因添加到数据库
         for (int i = 0; i < genes.size(); i++) {
             informationMapper.addGeneInfo(genes.get(i));
@@ -98,6 +106,7 @@ public class MutationTest {
         for (int i = 0; i < nonGenes.size(); i++) {
             informationMapper.addNonGeneInfo(nonGenes.get(i));
         }
+        //漏掉三个
 
         //提交修改至数据库
         sqlSession.commit();
@@ -229,6 +238,37 @@ public class MutationTest {
     }
 
 
+    void classify(Information gene, Mutation mutation) {
+        if (mutation.getChromosomePos() >= gene.getStartPos() &&
+                mutation.getChromosomePos() <= gene.getEndPos()) {
+            if (mutation.getType().startsWith("AT")) {
+                gene.setATNum(gene.getATNum() + 1);
+            } else if (mutation.getType().startsWith("AG")) {
+                gene.setAGNum(gene.getAGNum() + 1);
+            } else if (mutation.getType().startsWith("AC")) {
+                gene.setACNum(gene.getACNum() + 1);
+            } else if (mutation.getType().startsWith("TA")) {
+                gene.setTANum(gene.getTANum() + 1);
+            } else if (mutation.getType().startsWith("TG")) {
+                gene.setTGNum(gene.getTGNum() + 1);
+            } else if (mutation.getType().startsWith("TC")) {
+                gene.setTCNum(gene.getTCNum() + 1);
+            } else if (mutation.getType().startsWith("GA")) {
+                gene.setGANum(gene.getGANum() + 1);
+            } else if (mutation.getType().startsWith("GT")) {
+                gene.setGTNum(gene.getGTNum() + 1);
+            } else if (mutation.getType().startsWith("GC")) {
+                gene.setGCNum(gene.getGCNum() + 1);
+            } else if (mutation.getType().startsWith("CA")) {
+                gene.setCANum(gene.getCANum() + 1);
+            } else if (mutation.getType().startsWith("CT")) {
+                gene.setCTNum(gene.getCTNum() + 1);
+            } else if (mutation.getType().startsWith("CG")) {
+                gene.setCGNum(gene.getCGNum() + 1);
+            }
+        }
+    }
+
     /**
      * 合并重叠基因区间
      *
@@ -239,7 +279,7 @@ public class MutationTest {
         int j = 1;
         Information previous = null;
         Information next = null;
-        while (j < information.size()) {
+        while (j + 1 < information.size()) {
             previous = information.get(i);
             next = information.get(j);
             if (previous.getEndPos() >= next.getStartPos() && previous.getEndPos() <= next.getEndPos()) {
@@ -264,19 +304,20 @@ public class MutationTest {
         int pos = 0;
 
         List<Information> nonGenes = new ArrayList<>();
-        Information nonGeneHead = new Information(chromosomes.get(0).getChromosomeId(), "nonGene", 1, genes.get(0).getStartPos() - 1, 0, 0.0);
+        Information nonGeneHead = new Information(chromosomes.get(0).getChromosomeId(), "nonGene", 1, genes.get(0).getStartPos() - 1);
         nonGenes.add(nonGeneHead);
         for (int i = 0; i < chromosomes.size(); i++) {
             for (int j = 0; j < genes.size(); j++) {
-                if (genes.get(j).getChromosomeId().equals(chromosomes.get(i).getChromosomeId()) &&
-                        genes.get(j + 1).getChromosomeId().equals(chromosomes.get(i).getChromosomeId())) {
-                    Information nonGene = new Information(genes.get(j).getChromosomeId(), "nonGene", genes.get(j).getEndPos() + 1, genes.get(j + 1).getStartPos() - 1, 0, 0.0);
+                if (
+                        genes.get(j).getChromosomeId().equals(chromosomes.get(i).getChromosomeId()) &&
+                                genes.get(j + 1).getChromosomeId().equals(chromosomes.get(i).getChromosomeId())) {
+                    Information nonGene = new Information(genes.get(j).getChromosomeId(), "nonGene", genes.get(j).getEndPos() + 1, genes.get(j + 1).getStartPos() - 1);
                     nonGenes.add(nonGene);
                     pos = j + 2;
                 }
             }
             if (null != genes.get(pos)) {
-                Information nonGeneHead1 = new Information(genes.get(pos).getChromosomeId(), "nonGene", 1, genes.get(pos).getStartPos() - 1, 0, 0.0);
+                Information nonGeneHead1 = new Information(genes.get(pos).getChromosomeId(), "nonGene", 1, genes.get(pos).getStartPos() - 1);
                 nonGenes.add(nonGeneHead1);
             }
         }

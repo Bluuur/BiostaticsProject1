@@ -5,39 +5,102 @@
 <mapper namespace="com.zidongzh.mapper.InformationMapper">
 
     <select id="getAll" resultType="com.zidongzh.pojo.Information">
-        select * from t_information
+        select *
+        from t_information
     </select>
 
     <select id="getInfoByType" resultType="com.zidongzh.pojo.Information">
-        select * from t_information where type = #{type}
+        select *
+        from t_information
+        where type = #{type}
     </select>
 
     <insert id="addGeneInfo" parameterType="com.zidongzh.pojo.Information">
-        insert into t_gene(chromosome_id, type, start_pos, end_pos, mutation_num, mutation_rate)
-        values(#{information.chromosomeId},
-               #{information.type},
-               #{information.startPos},
-               #{information.endPos},
-               #{information.mutationNum},
-               #{information.mutationRate})
+        insert into t_gene(chromosomeId,
+                              type,
+                              startPos,
+                              endPos,
+                              mutationNum,
+                              mutationRate,
+                              AGNum,
+                              ATNum,
+                              ACNum,
+                              GANum,
+                              GTNum,
+                              GCNum,
+                              CANum,
+                              CGNum,
+                              CTNum,
+                              TANum,
+                              TGNum,
+                              TCNum)
+        values (#{information.chromosomeId},
+                #{information.type},
+                #{information.startPos},
+                #{information.endPos},
+                #{information.mutationNum},
+                #{information.mutationRate},
+                #{information.AGNum},
+                #{information.ATNum},
+                #{information.ACNum},
+                #{information.GANum},
+                #{information.GTNum},
+                #{information.GCNum},
+                #{information.CANum},
+                #{information.CGNum},
+                #{information.CTNum},
+                #{information.TANum},
+                #{information.TGNum},
+                #{information.TCNum},)
     </insert>
 
     <insert id="addNonGeneInfo" parameterType="com.zidongzh.pojo.Information">
-        insert into t_nongene(chromosome_id, type, start_pos, end_pos, mutation_num, mutation_rate)
-        values(#{information.chromosomeId},
-               #{information.type},
-               #{information.startPos},
-               #{information.endPos},
-               #{information.mutationNum},
-               #{information.mutationRate})
+        insert into t_gene(chromosomeId,
+                           type,
+                           startPos,
+                           endPos,
+                           mutationNum,
+                           mutationRate,
+                           AGNum,
+                           ATNum,
+                           ACNum,
+                           GANum,
+                           GTNum,
+                           GCNum,
+                           CANum,
+                           CGNum,
+                           CTNum,
+                           TANum,
+                           TGNum,
+                           TCNum)
+        values (#{information.chromosomeId},
+                #{information.type},
+                #{information.startPos},
+                #{information.endPos},
+                #{information.mutationNum},
+                #{information.mutationRate},
+                #{information.AGNum},
+                #{information.ATNum},
+                #{information.ACNum},
+                #{information.GANum},
+                #{information.GTNum},
+                #{information.GCNum},
+                #{information.CANum},
+                #{information.CGNum},
+                #{information.CTNum},
+                #{information.TANum},
+                #{information.TGNum},
+                #{information.TCNum},)
     </insert>
 
-    <select id="getGenes"   resultType="com.zidongzh.pojo.Information">
-        select * from t_gene
+    <select id="getGenes" resultType="com.zidongzh.pojo.Information">
+        select *
+        from t_gene
     </select>
 
-    <select id="getNonGenes"   resultType="com.zidongzh.pojo.Information">
-        select * from t_nongene
+    <select id="getNonGenes" resultType="com.zidongzh.pojo.Information">
+        select *
+        from t_nongene
     </select>
 
 </mapper>
