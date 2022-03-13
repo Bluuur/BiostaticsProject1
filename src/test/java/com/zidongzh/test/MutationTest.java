@@ -274,7 +274,7 @@ public class MutationTest {
 
     /**
      * @param genes 基因信息
-     * @return 非基因区间
+     * @return 非基因序列
      */
     List<Information> getNonGenes(List<Information> genes, List<Information> chromosomes) {
         int pos = 0;
